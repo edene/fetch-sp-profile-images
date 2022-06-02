@@ -1,0 +1,77 @@
+<html>
+    <title>Fetch profile images</title>
+    <style>
+        * {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #controls {
+            width: 200px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        #domain, #usernames { padding: 5px; margin: 5px; }
+        #usernames {
+            flex-grow: 1;
+        }
+        #pictures {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 200px;
+            right: 0;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+        #pictures img { margin: 5px; }
+    </style>
+<body>
+
+<div id="controls">
+    <input id="domain" type="text" placeholder="subdomain" />
+    <textarea id="usernames"></textarea>
+</div>
+
+<div id="pictures"></div>
+
+<script>
+    // Please don't judge; I know it's super inefficient but I spent 5 minutes for people to quickly grab profile images from sharepoint;
+    // It won't likely work for your organization.
+
+    const $ = (id) => document.getElementById(id);
+    const $domain = $('domain'), $usernames = $('usernames'), $pictures = $('pictures');
+
+    const loadPics = () => {
+        const domain = $domain.value.trim();
+        console.log(domain);
+        if (!domain) return;
+        const usernames = $usernames.value.split('\n').map(v => v.trim());
+
+        $pictures.innerHTML = '';
+
+        for (const username of usernames) {
+            if (username) {
+                const img = new Image();
+                img.src = `https://${domain}.sharepoint.com/_layouts/15/userphoto.aspx?size=L&username=${username}@${domain}.com`
+                img.title = username;
+                $pictures.appendChild(img);
+            }
+        }
+
+        localStorage.setItem('domain', domain);
+        localStorage.setItem('usernames', $usernames.value);
+    };
+
+    $domain.value = localStorage.getItem('domain');
+    $usernames.value = localStorage.getItem('usernames');
+    $domain.addEventListener('keyup', loadPics);
+    $usernames.addEventListener('keyup', loadPics);
+    loadPics();
+</script>
+
+</body>
+</html>
